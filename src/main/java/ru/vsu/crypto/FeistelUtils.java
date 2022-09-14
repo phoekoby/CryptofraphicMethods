@@ -9,15 +9,6 @@ import java.util.List;
 public class FeistelUtils {
     private FeistelUtils() {
     }
-
-    //    private static long bytesToLong(byte[] bytes) {
-//        long result = 0;
-//        for (byte aByte : bytes) {
-//            result <<= Byte.SIZE;
-//            result |= (aByte & 0xFF);
-//        }
-//        return result;
-//    }
     private static long bytesToLong(byte[] bytes) {
         long result = 0;
         for (int i = 0; i < Long.BYTES; i++) {
@@ -61,30 +52,6 @@ public class FeistelUtils {
         }
         return ArrayUtils.toPrimitive(resultArray.toArray(new Byte[0]));
     }
-
-//    private static byte[] longsToBytesWithoutZeros(long[] longNumbers) {
-//        List<Byte> resultArray = new ArrayList<>();
-//        for (long longNumber : longNumbers) {
-//            if (((byte) (longNumber >>> 56)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 56)));
-//            if (((byte) (longNumber >>> 48)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 48)));
-//            if (((byte) (longNumber >>> 40)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 40)));
-//            if (((byte) (longNumber >>> 32)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 32)));
-//            if (((byte) (longNumber >>> 24)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 24)));
-//            if (((byte) (longNumber >>> 16)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 16)));
-//            if (((byte) (longNumber >>> 8)) != (byte) 0)
-//                resultArray.add(((byte) (longNumber >>> 8)));
-//            if (((byte) longNumber) != (byte) 0)
-//                resultArray.add(((byte) longNumber));
-//        }
-//        return ArrayUtils.toPrimitive(resultArray.toArray(new Byte[0]));
-//    }
-
     private static byte[] longsToBytesWithoutZeros(long[] longNumbers) {
         List<Byte> resultArray = new ArrayList<>();
         for (int i = 0; i < longNumbers.length - 1; i++) {
