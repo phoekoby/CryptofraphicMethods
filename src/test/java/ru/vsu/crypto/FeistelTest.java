@@ -50,19 +50,4 @@ public class FeistelTest {
         byte[] decryptedMessage = FeistelUtils.decrypt(encryptedMessage,N,key);
         Assertions.assertArrayEquals(messageByte,decryptedMessage);
     }
-
-
-
-//    @Test
-//    public void test3() throws IOException {
-//        FileInputStream fileInputStream = new FileInputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource("cat.jpg")).getFile());
-//        byte[] messageByte = fileInputStream.readAllBytes();
-//        fileInputStream.close();
-//        byte[] encryptedMessage = FeistelUtils.encrypt(messageByte, N, key);
-//        byte[] decryptedMessage = FeistelUtils.decrypt(encryptedMessage,N,key);
-//        FileOutputStream fileOutputStream = new FileOutputStream(Objects.requireNonNull(this.getClass().getClassLoader().getResource("results/decrypted-test-cat.jpg")).getFile());
-//        fileOutputStream.write(decryptedMessage);
-//        fileOutputStream.close();
-//        Assertions.assertArrayEquals(messageByte,decryptedMessage);
-//    }
 }

@@ -18,10 +18,14 @@ public class Main {
         System.out.println("-------------------------FEISTEL TEST----------------------------");
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[8];
+        byte[] initVctor = new byte[8];
 
         random.nextBytes(bytes);
+        random.nextBytes(initVctor);
         BigInteger bigInteger = new BigInteger(bytes);
         long key = bigInteger.longValue();
+        bigInteger = new BigInteger(initVctor);
+        long initV = bigInteger.longValue();
         int N = 16;
         System.out.println("ROUNDS: " + N);
         FileInputStream fileInputStream = new FileInputStream("/home/phoekoby/Documents/education/cryptomethods/Task_1/src/main/resources/message.txt");
@@ -30,22 +34,40 @@ public class Main {
         System.out.println("==============================NOT ENCRYPTED MESSAGE=====================================");
         System.out.println(new String(message2));
         System.out.println("========================================================================================");
-        byte[] encryptedMessage1 = FeistelUtils.encrypt(message2, N, key);
+        byte[] encryptedMessage1 = FeistelUtils.encryptWithCBC(message2, N, key, initV);
         System.out.println("================================ENCRYPTED MESSAGE=======================================");
         System.out.println(new String(encryptedMessage1));
         System.out.println("========================================================================================");
-        byte[] decryptedMessage1 = FeistelUtils.decrypt(encryptedMessage1, N, key);
+        byte[] decryptedMessage1 = FeistelUtils.decryptWithCBC(encryptedMessage1, N, key, initV);
         System.out.println("================================DECRYPTED MESSAGE=======================================");
         System.out.println(new String(decryptedMessage1));
         System.out.println("========================================================================================");
         System.out.println("Is equals: " + Arrays.equals(message2, decryptedMessage1));
+        System.out.println("========================================================================================");
 
+        System.out.println("========================================================================================");
+        FileInputStream fileInputStreamRus = new FileInputStream("/home/phoekoby/Documents/education/cryptomethods/Task_1/src/main/resources/message-rus.txt");
+        byte[] messageRus = fileInputStreamRus.readAllBytes();
+        fileInputStreamRus.close();
+        System.out.println("==============================NOT ENCRYPTED MESSAGE=====================================");
+        System.out.println(new String(messageRus));
+        System.out.println("========================================================================================");
+        byte[] encryptedMessageRus = FeistelUtils.encryptWithCBC(messageRus, N, key, initV);
+        System.out.println("================================ENCRYPTED MESSAGE=======================================");
+        System.out.println(new String(encryptedMessageRus));
+        System.out.println("========================================================================================");
+        byte[] decryptedMessageRus = FeistelUtils.decryptWithCBC(encryptedMessageRus, N, key, initV);
+        System.out.println("================================DECRYPTED MESSAGE=======================================");
+        System.out.println(new String(decryptedMessageRus));
+        System.out.println("========================================================================================");
+        System.out.println("Is equals: " + Arrays.equals(messageRus, decryptedMessageRus));
 
+        /* Картинка */
         FileInputStream fileInputStreamImage = new FileInputStream("/home/phoekoby/Documents/education/cryptomethods/Task_1/src/main/resources/cat.jpg");
         byte[] imageMessage = fileInputStreamImage.readAllBytes();
         fileInputStreamImage.close();
-        byte[] encryptedMessage = FeistelUtils.encrypt(imageMessage,N,key);
-        byte[] decryptedImage = FeistelUtils.decrypt(encryptedMessage,N,key);
+        byte[] encryptedMessage = FeistelUtils.encryptWithCBC(imageMessage, N, key, initV);
+        byte[] decryptedImage = FeistelUtils.decryptWithCBC(encryptedMessage, N, key, initV);
         FileOutputStream fileOutputStream = new FileOutputStream("/home/phoekoby/Documents/education/cryptomethods/Task_1/src/main/resources/decrypted-cat.jpg");
         fileOutputStream.write(decryptedImage);
         fileOutputStream.close();

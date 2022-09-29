@@ -9,6 +9,7 @@ import java.util.List;
 public class FeistelUtils {
     private FeistelUtils() {
     }
+
     private static long bytesToLong(byte[] bytes) {
         long result = 0;
         for (int i = 0; i < Long.BYTES; i++) {
@@ -41,50 +42,41 @@ public class FeistelUtils {
     private static byte[] longsToBytes(long[] longNumbers) {
         List<Byte> resultArray = new ArrayList<>();
         for (long longNumber : longNumbers) {
-            resultArray.add(((byte) (longNumber >>> 56)));
-            resultArray.add(((byte) (longNumber >>> 48)));
-            resultArray.add(((byte) (longNumber >>> 40)));
-            resultArray.add(((byte) (longNumber >>> 32)));
-            resultArray.add(((byte) (longNumber >>> 24)));
-            resultArray.add(((byte) (longNumber >>> 16)));
-            resultArray.add(((byte) (longNumber >>> 8)));
-            resultArray.add(((byte) longNumber));
+            for (int j = 56; j >= 0; j -= 8) {
+                resultArray.add(((byte) (longNumber >>> j)));
+            }
         }
         return ArrayUtils.toPrimitive(resultArray.toArray(new Byte[0]));
     }
+
     private static byte[] longsToBytesWithoutZeros(long[] longNumbers) {
         List<Byte> resultArray = new ArrayList<>();
         for (int i = 0; i < longNumbers.length - 1; i++) {
-            resultArray.add(((byte) (longNumbers[i] >>> 56)));
-            resultArray.add(((byte) (longNumbers[i] >>> 48)));
-            resultArray.add(((byte) (longNumbers[i] >>> 40)));
-            resultArray.add(((byte) (longNumbers[i] >>> 32)));
-            resultArray.add(((byte) (longNumbers[i] >>> 24)));
-            resultArray.add(((byte) (longNumbers[i] >>> 16)));
-            resultArray.add(((byte) (longNumbers[i] >>> 8)));
-            resultArray.add(((byte) longNumbers[i]));
+            for (int j = 56; j >= 0; j -= 8) {
+                resultArray.add(((byte) (longNumbers[i] >>> j)));
+            }
         }
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 56)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 56)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 48)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 48)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 40)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 40)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 32)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 32)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 24)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 24)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 16)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 16)));
-        if (((byte) (longNumbers[longNumbers.length - 1] >>> 8)) != (byte) 0)
-            resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> 8)));
-        if (((byte) longNumbers[longNumbers.length - 1]) != (byte) 0)
-            resultArray.add(((byte) longNumbers[longNumbers.length - 1]));
+        for (int j = 56; j >= 0; j -= 8) {
+            if (((byte) (longNumbers[longNumbers.length - 1] >>> j)) != (byte) 0)
+                resultArray.add(((byte) (longNumbers[longNumbers.length - 1] >>> j)));
+        }
         return ArrayUtils.toPrimitive(resultArray.toArray(new Byte[0]));
     }
 
 
+    public static byte[] encryptWithCBC(byte[] message, int n, long key, long initVector) {
+        validateByteArray(message);
+        long[] longMessage = bytesToLongs(message);
+        long[] encryptedBlock = new long[longMessage.length];
+        encryptedBlock[0] = encrypt(longMessage[0] ^ initVector, n, key);
+        for (int i = 1; i < encryptedBlock.length; i++) {
+            encryptedBlock[i] = encrypt(longMessage[i] ^ encryptedBlock[i - 1], n, key);
+        }
+        return longsToBytes(encryptedBlock);
+    }
+
     public static byte[] encrypt(byte[] message, int n, long key) {
+        validateByteArray(message);
         long[] longMessage = bytesToLongs(message);
         long[] encryptedBlock = new long[longMessage.length];
         for (int j = 0; j < longMessage.length; j++) {
@@ -103,15 +95,28 @@ public class FeistelUtils {
             resultBlocks[2] = blocks[0];
             resultBlocks[3] = (short) (blocks[1] ^ blocks[0]);
             blocks = Arrays.copyOf(resultBlocks, resultBlocks.length);
+            keyI = 0;
         }
         return convertShortArrayToLong(blocks);
     }
 
     public static byte[] decrypt(byte[] encryptedMessage, int n, long key) {
+        validateByteArray(encryptedMessage);
         long[] longMessage = bytesToLongs(encryptedMessage);
         long[] decryptedMessage = new long[longMessage.length];
         for (int j = 0; j < longMessage.length; j++) {
             decryptedMessage[j] = decrypt(longMessage[j], n, key);
+        }
+        return longsToBytesWithoutZeros(decryptedMessage);
+    }
+
+    public static byte[] decryptWithCBC(byte[] encryptedMessage, int n, long key, long initVector) {
+        validateByteArray(encryptedMessage);
+        long[] longMessage = bytesToLongs(encryptedMessage);
+        long[] decryptedMessage = new long[longMessage.length];
+        decryptedMessage[0] = decrypt(longMessage[0], n, key) ^ initVector;
+        for (int i = 1; i < decryptedMessage.length; i++) {
+            decryptedMessage[i] = decrypt(longMessage[i], n, key) ^ longMessage[i - 1];
         }
         return longsToBytesWithoutZeros(decryptedMessage);
     }
@@ -126,6 +131,7 @@ public class FeistelUtils {
             resultBlocks[2] = (short) (blocks[0] ^ blocks[1]);
             resultBlocks[3] = (short) (function(resultBlocks[0], resultBlocks[1], keyI) ^ blocks[0]);
             blocks = Arrays.copyOf(resultBlocks, resultBlocks.length);
+            keyI = 0;
         }
         return convertShortArrayToLong(blocks);
     }
@@ -164,5 +170,10 @@ public class FeistelUtils {
         long left = value >>> n;
         long right = value << Long.toBinaryString(value).length() - n;
         return left | right;
+    }
+
+    private static void validateByteArray(byte[] array) {
+        if (array == null || array.length == 0)
+            throw new IllegalArgumentException("Array should not be empty");
     }
 }
