@@ -4,36 +4,34 @@ import com.google.common.collect.Lists;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GeneratorUtils {
     public static void main(String[] args) {
         GeneratorUtils generatorUtils = new GeneratorUtils();
         List<Double> randomList = Arrays.stream(generatorUtils.randomArray(10000000)).boxed().collect(Collectors.toList());
         System.out.println("Математическое ожидание: " + GeneratorUtils.mathExpect(randomList));
-        System.out.println("Дисперсия: :" + GeneratorUtils.dispersion(randomList));
+        System.out.println("Дисперсия: " + GeneratorUtils.dispersion(randomList));
         System.out.println("Энтропия: " + GeneratorUtils.entropy(randomList));
+        System.out.println("Период: " + generatorUtils.periodOfGenerator());
     }
 
+    private static final int M = 8;
+
     private static final List<Integer> list = new Random()
-            .ints(58, 0, (int) Math.pow(2, 30))
+            .ints(58, 0, M)
             .boxed()
             .collect(Collectors.toList());
-
-//private static final List<Integer> list = IntStream.range(0,58).boxed().collect(Collectors.toList());
-
-    private static final int M = (int) Math.pow(2, 30);
-//    private static final int M = (int) 16;
-
     private static final int FIRST_INDEX = 39;
     private static final int SECOND_INDEX = 0;
 
 
     //Чтобы избежать переполнения памяти будем просто удалять первый и будем добавлять новое в конец
-    public double random() {
+    public int random() {
         int random = (list.get(FIRST_INDEX) + list.get(SECOND_INDEX)) % M;
         list.remove(0);
         list.add(random);
-        return (double) random / M;
+        return random;
     }
 
     public double[] randomArray(int arraySize) {
@@ -44,20 +42,20 @@ public class GeneratorUtils {
         return array;
     }
 
-    public double periodOfGenerator() {
-        List<Integer> periods = new ArrayList<>();
-        for (int i = 0; i <= 100; i++) {
-            Set<Double> randoms = new HashSet<>();
-            while (true) {
-                double random = this.random();
-                if (randoms.contains(random)) {
-                    periods.add(randoms.size());
-                    break;
-                }
-                randoms.add(random);
-            }
+    public int periodOfGenerator() {
+        int count = 10;
+        List<Integer> firstLine = IntStream
+                .generate(this::random)
+                .limit(count)
+                .boxed()
+                .collect(Collectors.toList());
+        this.random();
+        int i = 1;
+        while (!firstLine.equals(list.subList(list.size() - count, list.size()))) {
+            this.random();
+            i++;
         }
-        return periods.stream().mapToDouble(Integer::intValue).sum() / periods.size();
+        return i;
     }
 
     public static <T extends Number> double mathExpect(List<T> list) {
@@ -84,7 +82,7 @@ public class GeneratorUtils {
                 }
         );
         int listSize = list.size();
-        return - map.values().stream().map(integer -> {
+        return -map.values().stream().map(integer -> {
             double ver = (double) integer / listSize;
             return ver * Math.log(ver) / Math.log(2);
         }).mapToDouble(Double::doubleValue).sum();
