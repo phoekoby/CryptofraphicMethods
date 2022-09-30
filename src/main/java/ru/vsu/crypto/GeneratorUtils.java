@@ -1,7 +1,5 @@
 package ru.vsu.crypto;
 
-import com.google.common.collect.Lists;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
