@@ -2,19 +2,19 @@ package ru.vsu.crypto;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.DoubleStream;
 
-public class GeneratorUtils {
+public class Generator {
     public static void main(String[] args) {
-        GeneratorUtils generatorUtils = new GeneratorUtils();
-        List<Double> randomList = Arrays.stream(generatorUtils.randomArray(10000000)).boxed().collect(Collectors.toList());
-        System.out.println("Математическое ожидание: " + GeneratorUtils.mathExpect(randomList));
-        System.out.println("Дисперсия: " + GeneratorUtils.dispersion(randomList));
-        System.out.println("Энтропия: " + GeneratorUtils.entropy(randomList));
-        System.out.println("Период: " + generatorUtils.periodOfGenerator());
+        Generator generator = new Generator();
+        List<Double> randomList = Arrays.stream(generator.randomArray(10000000)).boxed().collect(Collectors.toList());
+        System.out.println("Математическое ожидание: " + Generator.mathExpect(randomList));
+        System.out.println("Дисперсия: " + Generator.dispersion(randomList));
+        System.out.println("Энтропия: " + Generator.entropy(randomList));
+        System.out.println("Период: " + Generator.periodOfGenerator(generator));
     }
 
-    private static final int M = 8;
+    private static final int M = 4;
 
     private static final List<Integer> list = new Random()
             .ints(58, 0, M)
@@ -25,11 +25,11 @@ public class GeneratorUtils {
 
 
     //Чтобы избежать переполнения памяти будем просто удалять первый и будем добавлять новое в конец
-    public int random() {
+    public double random() {
         int random = (list.get(FIRST_INDEX) + list.get(SECOND_INDEX)) % M;
         list.remove(0);
         list.add(random);
-        return random;
+        return (double) random / M;
     }
 
     public double[] randomArray(int arraySize) {
@@ -40,17 +40,21 @@ public class GeneratorUtils {
         return array;
     }
 
-    public int periodOfGenerator() {
+    public static int periodOfGenerator(Generator generator) {
         int count = 10;
-        List<Integer> firstLine = IntStream
-                .generate(this::random)
+        List<Double> firstLine = DoubleStream
+                .generate(generator::random)
                 .limit(count)
                 .boxed()
                 .collect(Collectors.toList());
-        this.random();
+        List<Double> secondLine = new ArrayList<>(List.copyOf(firstLine));
+        secondLine.add(generator.random());
+        secondLine.remove(0);
         int i = 1;
-        while (!firstLine.equals(list.subList(list.size() - count, list.size()))) {
-            this.random();
+
+        while (!firstLine.equals(secondLine)) {
+            secondLine.add(generator.random());
+            secondLine.remove(0);
             i++;
         }
         return i;
@@ -61,8 +65,8 @@ public class GeneratorUtils {
     }
 
     public static <T extends Number> double dispersion(List<T> list) {
-        double mathExpect = GeneratorUtils.mathExpect(list);
-        return GeneratorUtils.mathExpect(list
+        double mathExpect = Generator.mathExpect(list);
+        return Generator.mathExpect(list
                 .stream()
                 .map(t -> (t.doubleValue() - mathExpect) * (t.doubleValue() - mathExpect))
                 .collect(Collectors.toList()));
