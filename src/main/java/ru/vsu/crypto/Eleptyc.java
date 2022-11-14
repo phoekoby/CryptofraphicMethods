@@ -1,16 +1,7 @@
 package ru.vsu.crypto;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.bouncycastle.jce.ECNamedCurveTable;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-
-import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.security.*;
 import java.util.Random;
 
 public class Eleptyc {
@@ -43,7 +34,7 @@ public class Eleptyc {
 
         Pair<BigInteger, BigInteger> aliceSharedKey = scalarMult(alisaKeys.privateKey, bobKeys.publicKey);
         Pair<BigInteger, BigInteger> bobSharedKey = scalarMult(bobKeys.privateKey, alisaKeys.publicKey);
-        System.out.println(aliceSharedKey.equals(bobSharedKey));
+        System.out.println("Is keys Equals: " + aliceSharedKey.equals(bobSharedKey));
 
         System.out.printf("Common Secret: (0x%s, 0x%s)", aliceSharedKey.getLeft().toString(16), aliceSharedKey.getRight().toString(16));
     }
