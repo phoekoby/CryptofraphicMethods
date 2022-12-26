@@ -11,15 +11,18 @@ public class Generator {
         System.out.println("Математическое ожидание: " + Generator.mathExpect(randomList));
         System.out.println("Дисперсия: " + Generator.dispersion(randomList));
         System.out.println("Энтропия: " + Generator.entropy(randomList));
-        System.out.println("Период: " + Generator.periodOfGenerator(generator));
+//        System.out.println("Период: " + Generator.periodOfGenerator(generator));
+
     }
 
-    private static final int M = 4;
+    private static final int M = 128;
 
-    private static final List<Integer> list = new Random()
-            .ints(58, 0, M)
-            .boxed()
-            .collect(Collectors.toList());
+//    private static final List<Integer> list = new Random()
+//            .ints(58, 0, M)
+//            .boxed()
+//            .collect(Collectors.toList());
+
+    private final List<Integer> list = new ArrayList<>(List.of(103, 99, 48, 98, 51, 116, 81, 86, 1, 55, 99, 4, 56, 27, 75, 111, 85, 93, 97, 64, 51, 6, 81, 89, 13, 23, 70, 41, 65, 1, 68, 65, 86, 90, 85, 39, 64, 78, 103, 106, 98, 83, 116, 118, 83, 32, 99, 41, 100, 95, 46, 37, 97, 32, 68, 103, 23, 17));
     private static final int FIRST_INDEX = 39;
     private static final int SECOND_INDEX = 0;
 
